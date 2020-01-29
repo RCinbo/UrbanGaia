@@ -1,0 +1,111 @@
+---
+title: "UrbanGaia KPI paper
+author: 
+  - 
+    name: "Raïsa Carmen"
+    email: "raisa.carmen@inbo.be"
+  - 
+    name: "Sander Jacobs"
+    email: "sander.jacobs@inbo.be"
+subtitle: ""
+reportnr: ""
+link-citations: TRUE
+site: bookdown::bookdown_site
+output:
+  bookdown::gitbook:
+    split_by: "chapter+number"
+    template: !expr INBOmd::inbo_rapport_css("html")
+  bookdown::pdf_book:
+    base_format: INBOmd::inbo_rapport
+    style: INBO
+    lang: "english"
+    lof: TRUE
+    lot: TRUE
+    floatbarrier: "section"
+  bookdown::epub_book:
+    stylesheet: "css/inbo_rapport.css"
+    template: !expr INBOmd::inbo_rapport_css("epub")
+---
+
+
+
+
+```{r setup, include = FALSE}
+library(kableExtra)
+library(dplyr)
+library(knitr)
+library(readxl)
+library(tidyverse)
+library(INBOtheme)
+opts_chunk$set(
+  echo = FALSE, 
+  eval = TRUE,
+  cache = FALSE,
+  dpi = 300,
+  fig.width = 150 / 25.4,
+  fig.height = 100 / 25.4,
+  warning = TRUE,
+  error = TRUE,
+  message = TRUE
+)
+theme_set(
+  theme_inbo(
+    base_family = "Calibri", # "Flanders Art Sans",
+    base_size = 12
+  )
+)
+if (!interactive() && opts_knit$get("rmarkdown.pandoc.to") != "html") {
+  opts_chunk$set(dev = "cairo_pdf")
+  theme_set(
+    theme_inbo(
+      base_family = "Calibri", # "Flanders Art Sans",
+      base_size = 8
+    )
+  )
+}
+```
+
+# Leipzig
+```{r read_data, inlcude=FALSE}
+city<-'Leipzig'
+filename <- "Indicators.xlsx"
+read_excel(
+  sprintf("data/%s",filename), 
+  sheet = city, skip = 2
+) %>% select(-41) %>%
+  filter(!is.na(Indicator))->DataL#41 is the black border
+for(i in 3:40){DataL[is.na(DataL[,i]),i]<-0}#put 'not relevant' if is was left open
+names(DataL)[41:47]<-c('Implementation','SpatialLevel','Frequency','Relevance','Feasability','Clarity','Credibility')
+DataL$City<-'Leipzig'
+
+city<-'Coimbra'
+filename <- "Indicators.xlsx"
+read_excel(
+  sprintf("data/%s",filename), 
+  sheet = city, skip = 2
+) %>% select(-41) %>%
+  filter(!is.na(Indicator))->DataC#41 is the black border
+for(i in 3:40){DataL[is.na(DataL[,i]),i]<-0}#put 'not relevant' if is was left open
+names(DataL)[41:47]<-c('Implementation','SpatialLevel','Frequency','Relevance','Feasability','Clarity','Credibility')
+DataL$City<-'Leipzig'
+
+#------- bind all dataset of eac hof the case studies--------#
+Data<-rbind(DataC, DataG, DataL, DataV)
+Data %>% mutate(Implementation = factor(as.factor(Implementation), levels = c('Being measured and used','Being measured but not used','Potential indicator, easily implemented','Potential indicator, difficult to implement','Potential indicator, unsure if implementable')),
+               SpatialLevel = factor(as.factor(SpatialLevel),levels = c('Higher','National','Regional','Municipality','Neighbourhood','Project','Household')),
+               Frequency = factor(as.factor(Frequency),levels = c('One time','Twice (before realization of the project and afterwards)','Less than yearly','Yearly or more','Monthly or more')),
+               Relevance = factor(as.factor(Relevance),levels = c('Very low','Low','Medium','High','Very high')),
+               Feasability = factor(as.factor(Feasability),levels = c('Very low','Low','Medium','High','Very high')),
+               Clarity = factor(as.factor(Clarity),levels = c('Very low','Low','Medium','High','Very high')),
+               Credibility = factor(as.factor(Credibility),levels = c('Very low','Low','Medium','High','Very high')),
+               )
+#-----Aggregate results over all KPIs------#
+Agg<-data.frame(KPI=colnames(Data[,3:40]),
+                Perfect=sapply(3:40,FUN=function(x){sum(Data[,x]==2)}),
+                Somewhat=sapply(3:40,FUN=function(x){sum(Data[,x]==1)}))
+
+````
+
+
+
+
