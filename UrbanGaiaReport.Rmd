@@ -101,7 +101,7 @@ DataC$City<-'Coimbra'
 city<-'Vilnius'
 read_excel(
   sprintf("%s/data/%s",getwd(),filename), 
-  sheet = sprintf('%sMuniLEVEL',city), skip = 2
+  sheet = sprintf('%sMUNIC',city), skip = 2
 ) %>% select(-44) %>%
   filter(!is.na(Indicator))->DataV#44 is the black border
 for(i in 3:43){DataV[is.na(DataV[,i]),i]<-0}#put 'not relevant' if is was left open
@@ -332,7 +332,7 @@ fviz_pca_ind(pca1,
 
 ```{r PCAresults3, fig.cap="Mapping of the indicators. Indicators with a similar profile are grouped together. The color represents the group of indicators."}
 fviz_pca_var(pca1,
-            habillage = as.factor(unlist(Data[a, 'City'])),repel = TRUE, geom="point", addEllipses=TRUE, ellipse.level=0.95)     # Avoid text overlapping
+            habillage = as.factor(unlist(Data[a, 'City'])),repel = TRUE, geom="point", addEllipses=TRUE, ellipse.level=0.90)     # Avoid text overlapping
 ```
 
 ###PCA with IVs
